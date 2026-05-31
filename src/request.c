@@ -1,5 +1,6 @@
 #include "request.h"
 #include "chat.h"
+#include "core.h"
 
 void loadRequests(Request *requests, int *count) {
     char path[MAX_PATH];
@@ -48,12 +49,9 @@ int createRequest(Request *requests, int *reqCount, Plate *plates, int plateCoun
     saveRequests(requests, *reqCount);
     savePlates(plates, plateCount);
     printf("Request sent (ID: %d).\n", r.id);
-
-    /* Notify plate owner */
     char notifMsg[MAX_MSG];
     snprintf(notifMsg, sizeof(notifMsg), "%s requested your plate: %s", requester, plates[idx].foodName);
     addNotification(plates[idx].donor, notifMsg);
-
     return 1;
 }
 
@@ -74,52 +72,34 @@ int acceptRequest(int reqId, Request *requests, int reqCount, Plate *plates, int
     for (int i = 0; i < reqCount; i++) {
         if (requests[i].id == reqId && strcmp(requests[i].status, "Pending") == 0) {
             strcpy(requests[i].status, "Accepted");
-            for (int j = 0; j < plateCount; j++) {
-                if (plates[j].id == requests[i].plateId) {
-                    strcpy(plates[j].status, "Donated");
-                    break;
-                }
-            }
-            saveRequests(requests, reqCount);
-            savePlates(plates, plateCount);
+            for (int j = 0; j < plateCount; j++)
+                if (plates[j].id == requests[i].plateId) { strcpy(plates[j].status, "Donated"); break; }
+            saveRequests(requests, reqCount); savePlates(plates, plateCount);
             printf("Accepted.\n");
-
-            /* Notify requester */
             char notifMsg[MAX_MSG];
             snprintf(notifMsg, sizeof(notifMsg), "Your request #%d was ACCEPTED!", reqId);
             addNotification(requests[i].requester, notifMsg);
-
             return 1;
         }
     }
-    printf("Not found or already processed.\n");
-    return 0;
+    printf("Not found or already processed.\n"); return 0;
 }
 
 int declineRequest(int reqId, Request *requests, int reqCount, Plate *plates, int plateCount) {
     for (int i = 0; i < reqCount; i++) {
         if (requests[i].id == reqId && strcmp(requests[i].status, "Pending") == 0) {
             strcpy(requests[i].status, "Declined");
-            for (int j = 0; j < plateCount; j++) {
-                if (plates[j].id == requests[i].plateId) {
-                    strcpy(plates[j].status, "Available");
-                    break;
-                }
-            }
-            saveRequests(requests, reqCount);
-            savePlates(plates, plateCount);
+            for (int j = 0; j < plateCount; j++)
+                if (plates[j].id == requests[i].plateId) { strcpy(plates[j].status, "Available"); break; }
+            saveRequests(requests, reqCount); savePlates(plates, plateCount);
             printf("Declined.\n");
-
-            /* Notify requester */
             char notifMsg[MAX_MSG];
             snprintf(notifMsg, sizeof(notifMsg), "Your request #%d was DECLINED.", reqId);
             addNotification(requests[i].requester, notifMsg);
-
             return 1;
         }
     }
-    printf("Not found or already processed.\n");
-    return 0;
+    printf("Not found or already processed.\n"); return 0;
 }
 
 void viewTransactionHistory(const Request *requests, int reqCount, const char *username) {
@@ -132,4 +112,56 @@ void viewTransactionHistory(const Request *requests, int reqCount, const char *u
             f++;
         }
     if (!f) printf("No transactions.\n");
+}
+
+void requestMenu(const char *loggedInUser) {
+    int choice, reqId;
+    while (1) {
+        system(CLEAR_SCREEN);
+        printf("\n");
+        printCenteredLine('=', 36);
+        printCentered("REQUEST MANAGEMENT");
+        printCenteredLine('=', 36);
+        printf("                    1. Make New Request\n");
+        printf("                    2. View Requests for My Plates\n");
+        printf("                    3. Accept Request\n");
+        printf("                    4. Decline Request\n");
+        printf("                    5. Transaction History\n");
+        printf("                    6. Back to Main Menu\n");
+        printCenteredLine('=', 36);
+        printf("                    Choice: ");
+        scanf("%d", &choice); getchar();
+        switch (choice) {
+            case 1:
+                system(CLEAR_SCREEN); printf("\n--- Make New Request ---\n");
+                loadPlates(plates, &plateCount); loadRequests(requests, &requestCount);
+                createRequest(requests, &requestCount, plates, plateCount, loggedInUser);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 2:
+                system(CLEAR_SCREEN);
+                loadPlates(plates, &plateCount); loadRequests(requests, &requestCount);
+                viewRequestsForMyPlates(requests, requestCount, plates, plateCount, loggedInUser);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 3:
+                system(CLEAR_SCREEN); printf("\n--- Accept Request ---\n");
+                loadPlates(plates, &plateCount); loadRequests(requests, &requestCount);
+                viewRequestsForMyPlates(requests, requestCount, plates, plateCount, loggedInUser);
+                printf("Request ID to accept: "); scanf("%d", &reqId); getchar();
+                acceptRequest(reqId, requests, requestCount, plates, plateCount);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 4:
+                system(CLEAR_SCREEN); printf("\n--- Decline Request ---\n");
+                loadPlates(plates, &plateCount); loadRequests(requests, &requestCount);
+                viewRequestsForMyPlates(requests, requestCount, plates, plateCount, loggedInUser);
+                printf("Request ID to decline: "); scanf("%d", &reqId); getchar();
+                declineRequest(reqId, requests, requestCount, plates, plateCount);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 5:
+                system(CLEAR_SCREEN); loadRequests(requests, &requestCount);
+                viewTransactionHistory(requests, requestCount, loggedInUser);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 6: return;
+            default: printf("\n"); printCentered("Invalid choice.");
+        }
+    }
 }

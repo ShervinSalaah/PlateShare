@@ -4,9 +4,12 @@
 #include "config.h"
 
 void initSystem(Config *cfg);
-int displayMainMenu();
+void getCurrentTimestamp(char *buffer, size_t size);
 void loadConfig(Config *cfg);
 void saveConfig(const Config *cfg);
 int validateFilePath(const char *path);
+void runMenuSystem(void);
+void printCentered(const char *str);
+void printCenteredLine(char ch, int width);
 
 #endif

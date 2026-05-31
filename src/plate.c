@@ -1,5 +1,6 @@
 #include "plate.h"
 #include "chat.h"
+#include "core.h"
 #include <ctype.h>
 
 void loadPlates(Plate *plates, int *count) {
@@ -56,12 +57,9 @@ int addPlate(Plate *plates, int *count, const char *donor) {
     plates[*count] = p; (*count)++;
     savePlates(plates, *count);
     printf("Plate added (ID: %d).\n", p.id);
-    
-      /* Notify all users about new plate */
     char notifMsg[MAX_MSG];
     snprintf(notifMsg, sizeof(notifMsg), "%s added a new plate: %s (Qty: %d)", donor, p.foodName, p.quantity);
     addNotification("all", notifMsg);
-    
     return 1;
 }
 
@@ -95,4 +93,43 @@ void sortPlatesByExpiry(Plate *plates, int count) {
                 Plate t = plates[j]; plates[j] = plates[j + 1]; plates[j + 1] = t;
             }
     printf("Sorted by expiry.\n");
+}
+
+void plateMenu(const char *loggedInUser) {
+    int choice; char input[MAX_LINE];
+    while (1) {
+        system(CLEAR_SCREEN);
+        printf("\n");
+        printCenteredLine('=', 36);
+        printCentered("PLATE MANAGEMENT");
+        printCenteredLine('=', 36);
+        printf("                    1. Add New Plate\n");
+        printf("                    2. View All Plates\n");
+        printf("                    3. Search Plates\n");
+        printf("                    4. Sort Plates by Expiry\n");
+        printf("                    5. Back to Main Menu\n");
+        printCenteredLine('=', 36);
+        printf("                    Choice: ");
+        scanf("%d", &choice); getchar();
+        switch (choice) {
+            case 1:
+                system(CLEAR_SCREEN); printf("\n--- Add New Plate ---\n");
+                addPlate(plates, &plateCount, loggedInUser);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 2:
+                system(CLEAR_SCREEN); loadPlates(plates, &plateCount); displayAllPlates(plates, plateCount);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 3:
+                system(CLEAR_SCREEN); printf("\n--- Search Plates ---\nSearch term: ");
+                fgets(input, sizeof(input), stdin); input[strcspn(input, "\n")] = 0;
+                loadPlates(plates, &plateCount); searchPlateByName(plates, plateCount, input);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 4:
+                system(CLEAR_SCREEN); loadPlates(plates, &plateCount);
+                sortPlatesByExpiry(plates, plateCount); displayAllPlates(plates, plateCount);
+                printf("\n                    Press Enter to continue..."); getchar(); break;
+            case 5: return;
+            default: printf("\n"); printCentered("Invalid choice.");
+        }
+    }
 }

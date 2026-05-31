@@ -77,6 +77,9 @@ extern int plateCount;
 extern Request requests[MAX_REQUESTS];
 extern int requestCount;
 
+extern char g_loggedInUser[30];
+extern int g_loggedIn;
+
 void getCurrentTimestamp(char *buffer, size_t size);
 
 #endif

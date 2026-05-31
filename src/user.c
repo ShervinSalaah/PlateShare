@@ -1,7 +1,6 @@
 #include "user.h"
+#include "core.h"
 #include <ctype.h>
-#include <stdio.h>
-#include <string.h>
 
 void loadUsers(User *users, int *count) {
     char path[MAX_PATH];
@@ -41,57 +40,34 @@ int validatePassword(const char *pwd) {
 int registerUser(User *users, int *count) {
     if (*count >= MAX_USERS) { printf("User list full.\n"); return 0; }
     User u;
-    
     while (1) {
-        printf("Username: "); 
-        fgets(u.username, 30, stdin); 
-        u.username[strcspn(u.username, "\n")] = 0;
+        printf("Username: "); fgets(u.username, 30, stdin); u.username[strcspn(u.username, "\n")] = 0;
         if (strlen(u.username) > 0) break;
-        printf("Username cannot be empty! Please try again.\n");
+        printf("Username cannot be empty!\n");
     }
-
     for (int i = 0; i < *count; i++)
         if (strcmp(users[i].username, u.username) == 0) { printf("Exists.\n"); return 0; }
-    
     while (1) {
-        printf("Password (6+ chars, 1 digit): "); 
-        fgets(u.password, 30, stdin); 
-        u.password[strcspn(u.password, "\n")] = 0;
-        if (strlen(u.password) == 0) {
-            printf("Password cannot be empty!\n");
-            continue;
-        }
-        if (!validatePassword(u.password)) { 
-            printf("Invalid password constraint! Must be 6+ chars with at least 1 digit.\n"); 
-            continue; 
-        }
+        printf("Password (6+ chars, 1 digit): "); fgets(u.password, 30, stdin); u.password[strcspn(u.password, "\n")] = 0;
+        if (strlen(u.password) == 0) { printf("Password cannot be empty!\n"); continue; }
+        if (!validatePassword(u.password)) { printf("Invalid! Must be 6+ chars with 1 digit.\n"); continue; }
         break;
     }
-    
     while (1) {
-        printf("Full name: "); 
-        fgets(u.fullname, 50, stdin); 
-        u.fullname[strcspn(u.fullname, "\n")] = 0;
+        printf("Full name: "); fgets(u.fullname, 50, stdin); u.fullname[strcspn(u.fullname, "\n")] = 0;
         if (strlen(u.fullname) > 0) break;
         printf("Full name cannot be empty!\n");
     }
-
     while (1) {
-        printf("Role (donor/receiver): "); 
-        fgets(u.role, 10, stdin); 
-        u.role[strcspn(u.role, "\n")] = 0;
+        printf("Role (donor/receiver): "); fgets(u.role, 10, stdin); u.role[strcspn(u.role, "\n")] = 0;
         if (strlen(u.role) > 0) break;
         printf("Role cannot be empty!\n");
     }
-
     while (1) {
-        printf("Email: "); 
-        fgets(u.email, 40, stdin); 
-        u.email[strcspn(u.email, "\n")] = 0;
+        printf("Email: "); fgets(u.email, 40, stdin); u.email[strcspn(u.email, "\n")] = 0;
         if (strlen(u.email) > 0) break;
         printf("Email cannot be empty!\n");
     }
-
     users[*count] = u; (*count)++;
     saveUsers(users, *count);
     printf("Registered.\n"); return 1;
@@ -126,4 +102,37 @@ int updateUserProfile(User *users, int count, const char *username) {
             printf("Updated.\n"); return 1;
         }
     printf("Not found.\n"); return 0;
+}
+
+void userMenu(char *loggedInUser, int *loggedIn) {
+    int choice;
+    while (1) {
+        system(CLEAR_SCREEN);
+        printf("\n");
+        printCenteredLine('=', 36);
+        printCentered("USER MANAGEMENT");
+        printCenteredLine('=', 36);
+        printf("                    1. View All Users\n");
+        printf("                    2. Update My Profile\n");
+        printf("                    3. Back to Main Menu\n");
+        printCenteredLine('=', 36);
+        printf("                    Choice: ");
+        scanf("%d", &choice); getchar();
+        switch (choice) {
+            case 1:
+                system(CLEAR_SCREEN);
+                loadUsers(users, &userCount);
+                displayAllUsers(users, userCount);
+                printf("\n                    Press Enter to continue..."); getchar();
+                break;
+            case 2:
+                system(CLEAR_SCREEN);
+                printf("\n--- Update Profile ---\n");
+                updateUserProfile(users, userCount, loggedInUser);
+                printf("\n                    Press Enter to continue..."); getchar();
+                break;
+            case 3: return;
+            default: printf("\n"); printCentered("Invalid choice.");
+        }
+    }
 }
