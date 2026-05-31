@@ -1,4 +1,5 @@
 #include "plate.h"
+#include "chat.h"
 #include <ctype.h>
 
 void loadPlates(Plate *plates, int *count) {
@@ -55,6 +56,12 @@ int addPlate(Plate *plates, int *count, const char *donor) {
     plates[*count] = p; (*count)++;
     savePlates(plates, *count);
     printf("Plate added (ID: %d).\n", p.id);
+    
+      /* Notify all users about new plate */
+    char notifMsg[MAX_MSG];
+    snprintf(notifMsg, sizeof(notifMsg), "%s added a new plate: %s (Qty: %d)", donor, p.foodName, p.quantity);
+    addNotification("all", notifMsg);
+    
     return 1;
 }
 

@@ -21,6 +21,7 @@ int main() {
     int choice, subChoice;
     char input[MAX_LINE];
     char chatPath[MAX_PATH];
+    char recipient[30];
 
     while (1) {
         choice = displayMainMenu();
@@ -41,6 +42,7 @@ int main() {
                     default: printf("Invalid choice.\n");
                 }
                 break;
+
             case 2:
                 if (!loggedIn) { printf("Please login first.\n"); break; }
                 printf("\n1. Add Plate\n2. View All Plates\n3. Search Plate\n4. Sort by Expiry\nChoice: ");
@@ -59,6 +61,7 @@ int main() {
                     default: printf("Invalid choice.\n");
                 }
                 break;
+
             case 3:
                 if (!loggedIn) { printf("Please login first.\n"); break; }
                 printf("\n1. Make Request\n2. View Requests for My Plates\n3. Accept Request\n4. Decline Request\n5. Transaction History\nChoice: ");
@@ -82,38 +85,40 @@ int main() {
                     default: printf("Invalid choice.\n");
                 }
                 break;
+
             case 4:
                 if (!loggedIn) { printf("Please login first.\n"); break; }
                 snprintf(chatPath, MAX_PATH, "%schat.txt", appConfig.dataFolder);
-                printf("\n1. Send Message\n2. View Chat\n3. Clear Chat\n4. Encrypt Message\n5. Decrypt Message\nChoice: ");
+                printf("\n1. Group Chat (Live)\n2. Send Direct Message\n3. Inbox (Private Messages)\n4. Notifications\n5. Clear Notifications\nChoice: ");
                 scanf("%d", &subChoice);
                 getchar();
                 switch (subChoice) {
                     case 1:
+                        viewGroupChat(chatPath, loggedInUser);
+                        break;
+                    case 2:
+                        printf("Send to (username): ");
+                        fgets(recipient, sizeof(recipient), stdin);
+                        recipient[strcspn(recipient, "\n")] = 0;
                         printf("Message: ");
                         fgets(input, sizeof(input), stdin);
                         input[strcspn(input, "\n")] = 0;
-                        sendMessage(loggedInUser, input, chatPath);
+                        sendDirectMessage(loggedInUser, recipient, input, chatPath);
                         break;
-                    case 2: viewChatHistory(chatPath); break;
-                    case 3: clearChat(chatPath); break;
+                    case 3:
+                        viewInbox(chatPath, loggedInUser);
+                        break;
                     case 4:
-                        printf("Message to encrypt: ");
-                        fgets(input, sizeof(input), stdin);
-                        input[strcspn(input, "\n")] = 0;
-                        encryptMessage(input);
-                        printf("Encrypted: %s\n", input);
+                        viewNotifications(loggedInUser);
                         break;
                     case 5:
-                        printf("Message to decrypt: ");
-                        fgets(input, sizeof(input), stdin);
-                        input[strcspn(input, "\n")] = 0;
-                        decryptMessage(input);
-                        printf("Decrypted: %s\n", input);
+                        clearNotifications(loggedInUser);
                         break;
-                    default: printf("Invalid choice.\n");
+                    default:
+                        printf("Invalid choice.\n");
                 }
                 break;
+
             case 5:
                 printf("\nCurrent Settings:\n");
                 printf("Data Folder: %s\n", appConfig.dataFolder);
@@ -133,9 +138,11 @@ int main() {
                     printf("Updated. Restart may be required.\n");
                 }
                 break;
+
             case 6:
                 printf("Goodbye!\n");
                 return 0;
+
             default:
                 printf("Invalid option.\n");
         }

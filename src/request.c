@@ -1,4 +1,5 @@
 #include "request.h"
+#include "chat.h"
 
 void loadRequests(Request *requests, int *count) {
     char path[MAX_PATH];
@@ -47,6 +48,12 @@ int createRequest(Request *requests, int *reqCount, Plate *plates, int plateCoun
     saveRequests(requests, *reqCount);
     savePlates(plates, plateCount);
     printf("Request sent (ID: %d).\n", r.id);
+
+    /* Notify plate owner */
+    char notifMsg[MAX_MSG];
+    snprintf(notifMsg, sizeof(notifMsg), "%s requested your plate: %s", requester, plates[idx].foodName);
+    addNotification(plates[idx].donor, notifMsg);
+
     return 1;
 }
 
@@ -64,27 +71,55 @@ void viewRequestsForMyPlates(const Request *requests, int reqCount, const Plate 
 }
 
 int acceptRequest(int reqId, Request *requests, int reqCount, Plate *plates, int plateCount) {
-    for (int i = 0; i < reqCount; i++)
+    for (int i = 0; i < reqCount; i++) {
         if (requests[i].id == reqId && strcmp(requests[i].status, "Pending") == 0) {
             strcpy(requests[i].status, "Accepted");
-            for (int j = 0; j < plateCount; j++)
-                if (plates[j].id == requests[i].plateId) { strcpy(plates[j].status, "Donated"); break; }
-            saveRequests(requests, reqCount); savePlates(plates, plateCount);
-            printf("Accepted.\n"); return 1;
+            for (int j = 0; j < plateCount; j++) {
+                if (plates[j].id == requests[i].plateId) {
+                    strcpy(plates[j].status, "Donated");
+                    break;
+                }
+            }
+            saveRequests(requests, reqCount);
+            savePlates(plates, plateCount);
+            printf("Accepted.\n");
+
+            /* Notify requester */
+            char notifMsg[MAX_MSG];
+            snprintf(notifMsg, sizeof(notifMsg), "Your request #%d was ACCEPTED!", reqId);
+            addNotification(requests[i].requester, notifMsg);
+
+            return 1;
         }
-    printf("Not found or already processed.\n"); return 0;
+    }
+    printf("Not found or already processed.\n");
+    return 0;
 }
 
 int declineRequest(int reqId, Request *requests, int reqCount, Plate *plates, int plateCount) {
-    for (int i = 0; i < reqCount; i++)
+    for (int i = 0; i < reqCount; i++) {
         if (requests[i].id == reqId && strcmp(requests[i].status, "Pending") == 0) {
             strcpy(requests[i].status, "Declined");
-            for (int j = 0; j < plateCount; j++)
-                if (plates[j].id == requests[i].plateId) { strcpy(plates[j].status, "Available"); break; }
-            saveRequests(requests, reqCount); savePlates(plates, plateCount);
-            printf("Declined.\n"); return 1;
+            for (int j = 0; j < plateCount; j++) {
+                if (plates[j].id == requests[i].plateId) {
+                    strcpy(plates[j].status, "Available");
+                    break;
+                }
+            }
+            saveRequests(requests, reqCount);
+            savePlates(plates, plateCount);
+            printf("Declined.\n");
+
+            /* Notify requester */
+            char notifMsg[MAX_MSG];
+            snprintf(notifMsg, sizeof(notifMsg), "Your request #%d was DECLINED.", reqId);
+            addNotification(requests[i].requester, notifMsg);
+
+            return 1;
         }
-    printf("Not found or already processed.\n"); return 0;
+    }
+    printf("Not found or already processed.\n");
+    return 0;
 }
 
 void viewTransactionHistory(const Request *requests, int reqCount, const char *username) {
