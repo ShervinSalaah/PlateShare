@@ -1,7 +1,7 @@
 /**
  * @file core.c
  * @brief Core system: menu, dashboard, settings, session management
- * @author Member 1
+ * @author 254190K SAMARASINGHE S.M.M.P
  * 
  * This file is the control center of the application. It manages:
  * - User session (login/logout state)

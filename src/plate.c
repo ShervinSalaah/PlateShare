@@ -1,7 +1,7 @@
 /**
  * @file plate.c
  * @brief Food sharing (plate) management implementation
- * @author Member 3
+ * @author 254186E RUBASINHEGE S.N
  * 
  * Handles all food donation operations:
  * - Adding new food plates with pickup/delivery options
@@ -186,7 +186,7 @@ int addPlate(Plate *plates, int *count, const char *donor) {
     /* Expiry date - required, validated, past dates rejected */
     getValidExpiryDate(p.expiryDate);
 
-    /* Pickup option - new feature */
+    /* Pickup option - required */
     int pickupChoice;
     while (1) {
         printf("\n  How should people get this food?\n");

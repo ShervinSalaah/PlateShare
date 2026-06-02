@@ -1,7 +1,7 @@
 /**
  * @file chat.h
  * @brief Chat and notification system interface
- * @author Member 5 - Salaah
+ * @author 254188L SALAAH H.S.S
  * 
  * Provides group chat, direct messaging with per-user history,
  * inbox/sent folders, and notification management.

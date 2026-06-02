@@ -1,7 +1,7 @@
 /**
  * @file main.c
  * @brief Entry point for PlateShare Pro
- * @author Member 1 (Integration)
+ * @author 254188L SALAAH H.S.S (Integration)
  * 
  * This file defines the global database (all arrays) and starts
  * the application. It initializes the system, loads all persistent

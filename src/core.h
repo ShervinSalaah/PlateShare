@@ -1,7 +1,7 @@
 /**
  * @file core.h
  * @brief Core system interface: menu, configuration, utilities
- * @author Member 1
+ * @author 254190K SAMARASINGHE S.M.M.P
  * 
  * Provides system initialization, menu display functions,
  * configuration management, and shared utility functions

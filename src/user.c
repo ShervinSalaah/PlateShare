@@ -1,7 +1,7 @@
 /**
  * @file user.c
  * @brief User account management implementation
- * @author Member 2
+ * @author 254187H SAHITHIYAN J
  * 
  * Handles all user-related operations for PlateShare Pro:
  * - Creating new accounts with input validation

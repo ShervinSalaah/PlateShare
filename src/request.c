@@ -1,7 +1,7 @@
 /**
  * @file request.c
  * @brief Food request and transaction management implementation
- * @author Member 4
+ * @author 254189P SALIYA J.F
  * 
  * Handles all request-related operations:
  * - Requesting available food from donors

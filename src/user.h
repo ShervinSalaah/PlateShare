@@ -1,7 +1,7 @@
 /**
  * @file user.h
  * @brief User management interface
- * @author Member 2
+ * @author 254187H SAHITHIYAN J
  * 
  * Provides user registration, login, profile management, and CSV persistence.
  */

@@ -1,11 +1,11 @@
 /**
  * @file chat.c
  * @brief Chat and notification system implementation
- * @author Member 5 - Salaah
+ * @author 254188L SALAAH H.S.S
  * 
  * Features:
  * - Group chat with live polling and inline sending
- * - Direct messages stored per user pair (dm_alice_bob.txt)
+ * - Direct messages stored per user pair for individual history
  * - Chat list showing all conversation partners
  * - Individual chat history with any user
  * - Inbox (received DMs) and Sent folders
@@ -26,7 +26,7 @@ static void getNotificationPath(char *path, size_t size, const char *username) {
  * @brief Builds the file path for direct messages between two users
  * 
  * Creates a consistent filename by sorting usernames alphabetically.
- * Example: alice and bob -> dm_alice_bob.txt (always alice first)
+ *
  */
 static void getDMPath(char *path, size_t size, const char *user1, const char *user2) {
     if (strcmp(user1, user2) < 0) {
