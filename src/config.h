@@ -5,6 +5,13 @@
  * 
  * This header defines all structures, constants, and global declarations
  * used across the entire application. Every module includes this file.
+ * 
+ * Structures Defined:
+ * - User:      Stores account information for registered users
+ * - Plate:     Stores food donation details including pickup/delivery options
+ * - Request:   Links a receiver to a requested plate with status tracking
+ * - ChatMessage: Used for displaying chat messages in memory
+ * - Config:    Application settings (data folder path, maximum limits)
  */
 
 #ifndef CONFIG_H
@@ -36,51 +43,62 @@
     #define MAX_PATH 260
 #endif
 
-#define MAX_USERS     100
-#define MAX_PLATES    200
-#define MAX_REQUESTS  500
-#define MAX_MSG       200
-#define MAX_LINE      512
+#define MAX_USERS     100    /* Maximum number of registered users */
+#define MAX_PLATES    200    /* Maximum number of food plates */
+#define MAX_REQUESTS  500    /* Maximum number of requests */
+#define MAX_MSG       200    /* Maximum length of a chat message */
+#define MAX_LINE      512    /* Maximum length of a file line */
+#define MAX_ADDRESS   150    /* Maximum length of pickup address */
 
 /* ========== Structure Definitions ========== */
 
 /**
  * @struct User
  * @brief Represents a registered user of the system
+ * 
+ * Stores account credentials and profile information.
+ * Passwords are stored in plain text for this demonstration.
  */
 typedef struct {
-    char username[30];   /**< Unique login name */
-    char password[30];   /**< User password (plain text for demo) */
-    char fullname[50];   /**< Display name */
-    char role[10];       /**< "donor" or "receiver" */
-    char email[40];      /**< Contact email address */
+    char username[30];       /**< Unique login name */
+    char password[30];       /**< User password (plain text for demo) */
+    char fullname[50];       /**< Display name shown to other users */
+    char email[40];          /**< Contact email address */
 } User;
 
 /**
  * @struct Plate
  * @brief Represents a food plate offered by a donor
+ * 
+ * Contains all details about a food donation including
+ * pickup/delivery preferences and location.
  */
 typedef struct {
-    int id;              /**< Unique plate identifier */
-    char donor[30];      /**< Username of the donor */
-    char foodName[40];   /**< Name of the food item */
-    char description[100]; /**< Detailed description */
-    int quantity;        /**< Number of portions */
-    char expiryDate[11]; /**< Expiry date in YYYY-MM-DD format */
-    char status[15];     /**< "Available", "Reserved", or "Donated" */
-    char dateAdded[20];  /**< Timestamp when the plate was added */
+    int id;                  /**< Unique plate identifier (auto-incremented) */
+    char donor[30];          /**< Username of the person donating */
+    char foodName[40];       /**< Name of the food item (required) */
+    char description[100];   /**< Additional details (can be empty) */
+    int quantity;            /**< Number of portions available */
+    char expiryDate[11];     /**< Expiry date in YYYY-MM-DD format */
+    char status[15];         /**< "Available", "Reserved", or "Donated" */
+    char dateAdded[20];      /**< Timestamp when the plate was added */
+    char pickupOption[20];   /**< "Self Pickup" or "Open to Delivery" */
+    char address[MAX_ADDRESS]; /**< Pickup address or delivery area */
 } Plate;
 
 /**
  * @struct Request
  * @brief Represents a request for a food plate
+ * 
+ * Links a receiver to a specific plate and tracks the
+ * status through the donation workflow.
  */
 typedef struct {
-    int id;              /**< Unique request identifier */
-    int plateId;         /**< ID of the requested plate (foreign key) */
-    char requester[30];  /**< Username of the person making the request */
-    char status[15];     /**< "Pending", "Accepted", or "Declined" */
-    char timestamp[20];  /**< When the request was made */
+    int id;                  /**< Unique request identifier */
+    int plateId;             /**< ID of the requested plate (links to Plate) */
+    char requester[30];      /**< Username of the person making the request */
+    char status[15];         /**< "Pending", "Accepted", or "Declined" */
+    char timestamp[20];      /**< When the request was made */
 } Request;
 
 /**
@@ -88,14 +106,17 @@ typedef struct {
  * @brief Represents a chat message (used for display in memory)
  */
 typedef struct {
-    char sender[30];     /**< Username of the sender */
-    char message[MAX_MSG]; /**< The message content */
-    char timestamp[20];  /**< When the message was sent */
+    char sender[30];         /**< Username of the sender */
+    char message[MAX_MSG];   /**< The message content */
+    char timestamp[20];      /**< When the message was sent */
 } ChatMessage;
 
 /**
  * @struct Config
  * @brief Application configuration settings
+ * 
+ * Stores runtime settings that can be changed through the
+ * Settings menu and persist via config.ini.
  */
 typedef struct {
     char dataFolder[MAX_PATH]; /**< Path where all data files are stored */
@@ -120,8 +141,11 @@ extern int g_loggedIn;           /**< Login flag: 1=logged in, 0=not */
 /* ========== Shared Utility Function ========== */
 /**
  * @brief Gets the current date and time as a formatted string
- * @param buffer Character array to store the result
+ * @param buffer Character array to store the result (must be >= 20 chars)
  * @param size Size of the buffer
+ * 
+ * Writes the current timestamp in "YYYY-MM-DD HH:MM:SS" format.
+ * Used by chat messages, requests, notifications, and plate tracking.
  */
 void getCurrentTimestamp(char *buffer, size_t size);
 
