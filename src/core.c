@@ -1,11 +1,20 @@
+/**
+ * @file core.c
+ * @brief Core system: menu, dashboard, settings, session management
+ * @author Member 1
+ */
+
 #include "core.h"
 #include "user.h"
 #include "plate.h"
 #include "request.h"
 #include "chat.h"
 
+/* ========== Global Session State ========== */
 char g_loggedInUser[30] = "";
 int g_loggedIn = 0;
+
+/* ========== Display Utilities ========== */
 
 void printCentered(const char *str) {
     int len = strlen(str);
@@ -23,10 +32,18 @@ void printCenteredLine(char ch, int width) {
     printf("\n");
 }
 
+/* ========== System Functions ========== */
+
 void getCurrentTimestamp(char *buffer, size_t size) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
     strftime(buffer, size, "%Y-%m-%d %H:%M:%S", t);
+}
+
+void getCurrentDate(char *buffer) {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+    strftime(buffer, 11, "%Y-%m-%d", t);
 }
 
 void initSystem(Config *cfg) {
@@ -76,24 +93,45 @@ int validateFilePath(const char *path) {
     return 0;
 }
 
+/* ========== Count Unread Notifications ========== */
+
+static int countNotifications(const char *username) {
+    char notifPath[MAX_PATH];
+    snprintf(notifPath, MAX_PATH, "%snotifications_%s.txt", appConfig.dataFolder, username);
+    FILE *nf = fopen(notifPath, "r");
+    int count = 0;
+    if (nf) { char d[MAX_LINE]; while (fgets(d, sizeof(d), nf)) count++; fclose(nf); }
+    return count;
+}
+
+/* ========== Dashboard ========== */
+
 static void showDashboard(void) {
     system(CLEAR_SCREEN);
-    char notifPath[MAX_PATH];
-    snprintf(notifPath, MAX_PATH, "%snotifications_%s.txt", appConfig.dataFolder, g_loggedInUser);
-    FILE *nf = fopen(notifPath, "r");
-    int notifCount = 0;
-    if (nf) { char d[MAX_LINE]; while (fgets(d, sizeof(d), nf)) notifCount++; fclose(nf); }
+
+    int notifCount = countNotifications(g_loggedInUser);
+
     int myPlates = 0, myRequests = 0, pendingRequests = 0;
-    for (int i = 0; i < plateCount; i++)
-        if (strcmp(plates[i].donor, g_loggedInUser) == 0) myPlates++;
-    for (int i = 0; i < requestCount; i++)
-        if (strcmp(requests[i].requester, g_loggedInUser) == 0) myRequests++;
+    int myDonatedPlates = 0, myAcceptedRequests = 0;
+    for (int i = 0; i < plateCount; i++) {
+        if (strcmp(plates[i].donor, g_loggedInUser) == 0) {
+            myPlates++;
+            if (strcmp(plates[i].status, "Donated") == 0) myDonatedPlates++;
+        }
+    }
+    for (int i = 0; i < requestCount; i++) {
+        if (strcmp(requests[i].requester, g_loggedInUser) == 0) {
+            myRequests++;
+            if (strcmp(requests[i].status, "Accepted") == 0) myAcceptedRequests++;
+        }
+    }
     for (int i = 0; i < requestCount; i++)
         for (int j = 0; j < plateCount; j++)
             if (plates[j].id == requests[i].plateId &&
                 strcmp(plates[j].donor, g_loggedInUser) == 0 &&
                 strcmp(requests[i].status, "Pending") == 0)
                 pendingRequests++;
+
     printf("\n");
     printCenteredLine('=', 36);
     printCentered("DASHBOARD");
@@ -102,10 +140,13 @@ static void showDashboard(void) {
     snprintf(temp, sizeof(temp), "Welcome, %s", g_loggedInUser);
     printCentered(temp);
     printCenteredLine('-', 36);
+
     if (notifCount > 0) {
         snprintf(temp, sizeof(temp), "NOTIFICATIONS (%d):", notifCount);
         printCentered(temp);
-        nf = fopen(notifPath, "r");
+        char notifPath[MAX_PATH];
+        snprintf(notifPath, MAX_PATH, "%snotifications_%s.txt", appConfig.dataFolder, g_loggedInUser);
+        FILE *nf = fopen(notifPath, "r");
         if (nf) {
             char line[MAX_LINE]; int shown = 0;
             while (fgets(line, sizeof(line), nf) && shown < 4) {
@@ -121,15 +162,18 @@ static void showDashboard(void) {
     } else {
         printCentered("No new notifications.");
     }
+
     printCenteredLine('-', 36);
-    printCentered("QUICK STATS:");
-    snprintf(temp, sizeof(temp), "My Plates:     %d", myPlates); printCentered(temp);
-    snprintf(temp, sizeof(temp), "My Requests:   %d", myRequests); printCentered(temp);
-    snprintf(temp, sizeof(temp), "Pending Reqs:  %d", pendingRequests); printCentered(temp);
-    snprintf(temp, sizeof(temp), "Total Plates:  %d", plateCount); printCentered(temp);
-    snprintf(temp, sizeof(temp), "Total Users:   %d", userCount); printCentered(temp);
+    printCentered("YOUR ACTIVITY:");
+    snprintf(temp, sizeof(temp), "Plates Donated:      %d", myPlates); printCentered(temp);
+    snprintf(temp, sizeof(temp), "Donated (Completed): %d", myDonatedPlates); printCentered(temp);
+    snprintf(temp, sizeof(temp), "Requests Made:       %d", myRequests); printCentered(temp);
+    snprintf(temp, sizeof(temp), "Requests Accepted:   %d", myAcceptedRequests); printCentered(temp);
+    snprintf(temp, sizeof(temp), "Pending on My Plates: %d", pendingRequests); printCentered(temp);
     printCenteredLine('=', 36);
 }
+
+/* ========== Settings ========== */
 
 static void showSettings(void) {
     int choice; char input[MAX_LINE]; char temp[80];
@@ -152,19 +196,17 @@ static void showSettings(void) {
         if (choice == 1) {
             printf("                    New data folder path: ");
             fgets(input, sizeof(input), stdin); input[strcspn(input, "\n")] = 0;
-            if (strlen(input) > 0) { strcpy(appConfig.dataFolder, input); saveConfig(&appConfig); printCentered("Updated."); }
+            if (strlen(input) > 0) { strcpy(appConfig.dataFolder, input); saveConfig(&appConfig); printCentered("Updated. Restart required."); }
             printf("                    Press Enter..."); getchar();
         } else if (choice == 2) return;
     }
 }
 
+/* ========== Main Menu ========== */
+
 static void displayMenu(void) {
     system(CLEAR_SCREEN);
-    char notifPath[MAX_PATH];
-    snprintf(notifPath, MAX_PATH, "%snotifications_%s.txt", appConfig.dataFolder, g_loggedInUser);
-    FILE *nf = fopen(notifPath, "r");
-    int notifCount = 0;
-    if (nf) { char d[MAX_LINE]; while (fgets(d, sizeof(d), nf)) notifCount++; fclose(nf); }
+    int notifCount = countNotifications(g_loggedInUser);
     printf("\n");
     printCenteredLine('=', 36);
     printCentered("PLATESHARE PRO");
@@ -212,7 +254,16 @@ static void handleMenuChoice(int choice) {
             case 4: requestMenu(g_loggedInUser); break;
             case 5: chatMenu(g_loggedInUser); break;
             case 6: showSettings(); break;
-            case 7: g_loggedIn = 0; strcpy(g_loggedInUser, ""); printCentered("Logged out."); printf("\n                    Press Enter..."); getchar(); break;
+            case 7: {
+                printf("\n"); printCentered("Are you sure? (y/n): ");
+                char confirm; scanf(" %c", &confirm); getchar();
+                if (confirm == 'y' || confirm == 'Y') {
+                    g_loggedIn = 0; strcpy(g_loggedInUser, "");
+                    printCentered("Logged out successfully.");
+                } else { printCentered("Logout cancelled."); }
+                printf("\n                    Press Enter..."); getchar();
+                break;
+            }
             case 8: printf("\n"); printCentered("Goodbye!"); exit(0);
             default: printf("\n"); printCentered("Invalid option!");
         }

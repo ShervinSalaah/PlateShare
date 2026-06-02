@@ -1,3 +1,9 @@
+/**
+ * @file plate.h
+ * @brief Plate management interface
+ * @author Member 3
+ */
+
 #ifndef PLATE_H
 #define PLATE_H
 
@@ -5,6 +11,8 @@
 
 int addPlate(Plate *plates, int *count, const char *donor);
 void displayAllPlates(const Plate *plates, int count);
+void displayMyPlates(const Plate *plates, int count, const char *donor);
+int deleteMyPlate(Plate *plates, int *count, const char *donor);
 int searchPlateByName(const Plate *plates, int count, const char *food);
 void sortPlatesByExpiry(Plate *plates, int count);
 int validateDate(const char *date);

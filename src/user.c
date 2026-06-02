@@ -1,3 +1,9 @@
+/**
+ * @file user.c
+ * @brief User management implementation
+ * @author Member 2
+ */
+
 #include "user.h"
 #include "core.h"
 #include <ctype.h>
@@ -37,40 +43,60 @@ int validatePassword(const char *pwd) {
     return 0;
 }
 
+static int validateRole(const char *role) {
+    if (strcmp(role, "donor") == 0) return 1;
+    if (strcmp(role, "receiver") == 0) return 1;
+    return 0;
+}
+
 int registerUser(User *users, int *count) {
-    if (*count >= MAX_USERS) { printf("User list full.\n"); return 0; }
+    if (*count >= MAX_USERS) {
+        printf("\n[Error] User database is full! Cannot register more users.\n");
+        return 0;
+    }
     User u;
+
     while (1) {
-        printf("Username: "); fgets(u.username, 30, stdin); u.username[strcspn(u.username, "\n")] = 0;
+        printf("Username: ");
+        fgets(u.username, 30, stdin); u.username[strcspn(u.username, "\n")] = 0;
         if (strlen(u.username) > 0) break;
-        printf("Username cannot be empty!\n");
+        printf("[Warning] Username cannot be empty!\n");
     }
     for (int i = 0; i < *count; i++)
-        if (strcmp(users[i].username, u.username) == 0) { printf("Exists.\n"); return 0; }
+        if (strcmp(users[i].username, u.username) == 0) {
+            printf("[Error] Username '%s' already exists!\n", u.username);
+            return 0;
+        }
     while (1) {
-        printf("Password (6+ chars, 1 digit): "); fgets(u.password, 30, stdin); u.password[strcspn(u.password, "\n")] = 0;
-        if (strlen(u.password) == 0) { printf("Password cannot be empty!\n"); continue; }
-        if (!validatePassword(u.password)) { printf("Invalid! Must be 6+ chars with 1 digit.\n"); continue; }
+        printf("Password (6+ chars, at least 1 digit): ");
+        fgets(u.password, 30, stdin); u.password[strcspn(u.password, "\n")] = 0;
+        if (strlen(u.password) == 0) { printf("[Warning] Password cannot be empty!\n"); continue; }
+        if (!validatePassword(u.password)) { printf("[Error] Must be 6+ characters with at least 1 digit!\n"); continue; }
         break;
     }
     while (1) {
-        printf("Full name: "); fgets(u.fullname, 50, stdin); u.fullname[strcspn(u.fullname, "\n")] = 0;
+        printf("Full name: ");
+        fgets(u.fullname, 50, stdin); u.fullname[strcspn(u.fullname, "\n")] = 0;
         if (strlen(u.fullname) > 0) break;
-        printf("Full name cannot be empty!\n");
+        printf("[Warning] Full name cannot be empty!\n");
     }
     while (1) {
-        printf("Role (donor/receiver): "); fgets(u.role, 10, stdin); u.role[strcspn(u.role, "\n")] = 0;
-        if (strlen(u.role) > 0) break;
-        printf("Role cannot be empty!\n");
+        printf("Role (donor/receiver): ");
+        fgets(u.role, 10, stdin); u.role[strcspn(u.role, "\n")] = 0;
+        if (strlen(u.role) == 0) { printf("[Warning] Role cannot be empty!\n"); continue; }
+        if (!validateRole(u.role)) { printf("[Error] Invalid role! Choose 'donor' or 'receiver'.\n"); continue; }
+        break;
     }
     while (1) {
-        printf("Email: "); fgets(u.email, 40, stdin); u.email[strcspn(u.email, "\n")] = 0;
+        printf("Email: ");
+        fgets(u.email, 40, stdin); u.email[strcspn(u.email, "\n")] = 0;
         if (strlen(u.email) > 0) break;
-        printf("Email cannot be empty!\n");
+        printf("[Warning] Email cannot be empty!\n");
     }
     users[*count] = u; (*count)++;
     saveUsers(users, *count);
-    printf("Registered.\n"); return 1;
+    printf("\n[Success] User '%s' registered successfully as '%s'!\n", u.username, u.role);
+    return 1;
 }
 
 int loginUser(User *users, int count, char *loggedInUser) {
@@ -79,29 +105,40 @@ int loginUser(User *users, int count, char *loggedInUser) {
     printf("Password: "); fgets(p, 30, stdin); p[strcspn(p, "\n")] = 0;
     for (int i = 0; i < count; i++)
         if (strcmp(users[i].username, u) == 0 && strcmp(users[i].password, p) == 0) {
-            strcpy(loggedInUser, u); printf("Welcome %s!\n", users[i].fullname); return 1;
+            strcpy(loggedInUser, u);
+            printf("\n[Success] Welcome back, %s!\n", users[i].fullname);
+            return 1;
         }
-    printf("Invalid credentials.\n"); return 0;
+    printf("[Error] Invalid username or password!\n");
+    return 0;
 }
 
 void displayAllUsers(const User *users, int count) {
-    printf("\n%-20s %-30s %-10s %s\n", "Username", "Full Name", "Role", "Email");
+    if (count == 0) { printf("\nNo users registered yet.\n"); return; }
+    printf("\n%-5s %-20s %-30s %-10s %-25s\n", "#", "Username", "Full Name", "Role", "Email");
+    printf("----------------------------------------------------------------------------------------------\n");
     for (int i = 0; i < count; i++)
-        printf("%-20s %-30s %-10s %s\n", users[i].username, users[i].fullname, users[i].role, users[i].email);
+        printf("%-5d %-20s %-30s %-10s %-25s\n", i + 1, users[i].username, users[i].fullname, users[i].role, users[i].email);
 }
 
 int updateUserProfile(User *users, int count, const char *username) {
     for (int i = 0; i < count; i++)
         if (strcmp(users[i].username, username) == 0) {
             char in[50];
-            printf("New full name (Enter=skip): "); fgets(in, 50, stdin);
+            printf("Current full name: %s\n", users[i].fullname);
+            printf("New full name (Enter to skip): ");
+            fgets(in, 50, stdin);
             if (in[0] != '\n') { in[strcspn(in, "\n")] = 0; strcpy(users[i].fullname, in); }
-            printf("New email (Enter=skip): "); fgets(in, 40, stdin);
+            printf("Current email: %s\n", users[i].email);
+            printf("New email (Enter to skip): ");
+            fgets(in, 40, stdin);
             if (in[0] != '\n') { in[strcspn(in, "\n")] = 0; strcpy(users[i].email, in); }
             saveUsers(users, count);
-            printf("Updated.\n"); return 1;
+            printf("\n[Success] Profile updated!\n");
+            return 1;
         }
-    printf("Not found.\n"); return 0;
+    printf("[Error] User not found.\n");
+    return 0;
 }
 
 void userMenu(char *loggedInUser, int *loggedIn) {
