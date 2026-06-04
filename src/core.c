@@ -322,18 +322,18 @@ static void displayMenu(void) {
             printCentered(temp);
         }
         printCenteredLine('-', 40);
-        printf("                    1. Home Page\n");
-        printf("                    2. My Account\n");
-        printf("                    3. Share Food\n");
-        printf("                    4. Request Food\n");
-        printf("                    5. Messages & Alerts\n");
-        printf("                    6. Settings\n");
-        printf("                    7. Sign Out\n");
-        printf("                    8. Exit\n");
+        printf("  1. Home Page       - View your stats & alerts\n");
+        printf("  2. My Account      - See members & update profile\n");
+        printf("  3. Share Food      - Add, view & sort food listings\n");
+        printf("  4. Request Food    - Request food & Manage your requests\n");
+        printf("  5. Messages        - Chat, DMs, inbox & alerts\n");
+        printf("  6. Settings        - Change data folder path\n");
+        printf("  7. Sign Out\n");
+        printf("  8. Exit\n");
     } else {
-        printf("                    1. Create Account\n");
-        printf("                    2. Sign In\n");
-        printf("                    3. Exit\n");
+        printf("  1. Create Account   - Register as a new member\n");
+        printf("  2. Sign In          - Login to your account\n");
+        printf("  3. Exit\n");
     }
     printCenteredLine('=', 40);
     printf("                    Your choice: ");

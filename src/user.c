@@ -174,6 +174,7 @@ int registerUser(User *users, int *count) {
     
     printf("\n--- Create New Account ---\n");
     printf("  Join the PlateShare community!\n\n");
+    printf("  (Type '0' and press Enter at any prompt to cancel)\n\n");
 
     /* ===== USERNAME ===== */
     /* Required field - must be unique and not empty */
@@ -181,7 +182,9 @@ int registerUser(User *users, int *count) {
         printf("  Choose a username: ");
         fgets(u.username, 30, stdin);
         u.username[strcspn(u.username, "\n")] = 0;
-        
+        if (strcmp(u.username, "0") == 0) {
+            printf("  Registration cancelled.\n"); pauseScreen(""); return 0;
+        }
         if (strlen(u.username) > 0) break;  /* Valid - not empty */
         printf("  Please enter a username. It cannot be empty.\n");
     }
@@ -202,7 +205,9 @@ int registerUser(User *users, int *count) {
         printf("  Password (6+ characters, at least 1 number): ");
         fgets(u.password, 30, stdin);
         u.password[strcspn(u.password, "\n")] = 0;
-        
+        if (strcmp(u.password, "0") == 0) {
+            printf("  Registration cancelled.\n"); pauseScreen(""); return 0;
+        }
         if (strlen(u.password) == 0) {
             printf("  Password cannot be empty. Please enter a password.\n");
             continue;
@@ -221,7 +226,9 @@ int registerUser(User *users, int *count) {
         printf("  Your full name: ");
         fgets(u.fullname, 50, stdin);
         u.fullname[strcspn(u.fullname, "\n")] = 0;
-        
+        if (strcmp(u.fullname, "0") == 0) {
+            printf("  Registration cancelled.\n"); pauseScreen(""); return 0;
+        }
         if (strlen(u.fullname) > 0) break;
         printf("  Name cannot be empty. Please enter your name.\n");
     }
@@ -232,7 +239,9 @@ int registerUser(User *users, int *count) {
         printf("  Email address: ");
         fgets(u.email, 40, stdin);
         u.email[strcspn(u.email, "\n")] = 0;
-        
+        if (strcmp(u.email, "0") == 0) {
+            printf("  Registration cancelled.\n"); pauseScreen(""); return 0;
+        }
         if (strlen(u.email) > 0) break;
         printf("  Email cannot be empty. Please enter your email.\n");
     }
@@ -274,16 +283,19 @@ int loginUser(User *users, int count, char *loggedInUser) {
     char u[30], p[30];
     
     printf("\n--- Sign In ---\n");
+    printf("  (Type '0' to cancel)\n\n");
     
     /* Get username */
     printf("  Username: ");
     fgets(u, 30, stdin);
     u[strcspn(u, "\n")] = 0;
+    if (strcmp(u, "0") == 0) { printf("  Sign in cancelled.\n"); pauseScreen(""); return 0; }
     
     /* Get password */
     printf("  Password: ");
     fgets(p, 30, stdin);
     p[strcspn(p, "\n")] = 0;
+    if (strcmp(p, "0") == 0) { printf("  Sign in cancelled.\n"); pauseScreen(""); return 0; }
 
     /* Search for matching credentials */
     for (int i = 0; i < count; i++) {

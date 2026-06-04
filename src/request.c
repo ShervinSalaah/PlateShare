@@ -61,6 +61,7 @@ void saveRequests(const Request *requests, int count) {
  */
 int createRequest(Request *requests, int *reqCount, Plate *plates, int plateCount, const char *requester) {
     printf("\n--- Food Available to Request ---\n");
+    printf("  (Type '0' to cancel at any prompt)\n\n");
     int availableFound = 0;
     for (int i = 0; i < plateCount; i++) {
         if (strcmp(plates[i].status, "Available") == 0) {
@@ -83,6 +84,11 @@ int createRequest(Request *requests, int *reqCount, Plate *plates, int plateCoun
         char idStr[20];
         fgets(idStr, sizeof(idStr), stdin);
         idStr[strcspn(idStr, "\n")] = 0;
+                if (strcmp(idStr, "0") == 0) { 
+                    printf("  Request cancelled.\n"); 
+                    pauseScreen(""); 
+                    return 0; 
+                }
 
         if (strlen(idStr) == 0) {
             printf("  Please enter a number. Cannot be empty.\n");
@@ -187,12 +193,13 @@ void filterMyRequests(const Request *requests, int reqCount,
         printf("\n");
         printCenteredLine('=', 40);
         printCentered("FILTER REQUESTS");
+        printCentered("View requests on YOUR food");
         printCenteredLine('=', 40);
-        printf("                    1. Show Waiting (Pending)\n");
-        printf("                    2. Show Accepted\n");
-        printf("                    3. Show Declined\n");
-        printf("                    4. Show All (Newest First)\n");
-        printf("                    5. Go Back\n");
+        printf("  1. Show Waiting (Pending)  - Requests needing action\n");
+        printf("  2. Show Accepted           - Already approved\n");
+        printf("  3. Show Declined           - Already rejected\n");
+        printf("  4. Show All (Newest First)\n");
+        printf("  5. Go Back\n");
         printCenteredLine('=', 40);
         printf("                    Your choice: ");
         scanf("%d", &choice); getchar();
@@ -342,12 +349,12 @@ void requestMenu(const char *loggedInUser) {
         printCenteredLine('=', 40);
         printCentered("REQUEST FOOD");
         printCenteredLine('=', 40);
-        printf("                    1. Request Available Food\n");
-        printf("                    2. See Requests for My Food\n");
-        printf("                    3. Filter My Requests\n");
-        printf("                    4. Accept or Decline\n");
-        printf("                    5. My Request History\n");
-        printf("                    6. Go Back\n");
+        printf("  1. Request Food         - Browse & request available food\n");
+        printf("  2. See Requests         - View requests on your food\n");
+        printf("  3. Filter Requests      - Filter by status\n");
+        printf("  4. Accept or Decline    - Respond to a request\n");
+        printf("  5. My Request History   - See your past requests\n");
+        printf("  6. Go Back\n");
         printCenteredLine('=', 40);
         printf("                    Your choice: ");
         scanf("%d", &choice); getchar();

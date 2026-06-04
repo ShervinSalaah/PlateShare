@@ -253,9 +253,11 @@ void viewDirectChatHistory(const char *currentUser, const char *otherUser) {
     }
 
     /* Option to send a new message */
-    printf("\n  Send a message? (type message or Enter to skip): ");
+    printf("\n  Send a message? (type message, Enter to skip, '0' to cancel): ");
     char msg[MAX_MSG];
     fgets(msg, sizeof(msg), stdin);
+    if (strlen(msg) > 0 && strcmp(msg, "0") != 0) 
+        sendDirectMessage(currentUser, otherUser, msg);
     msg[strcspn(msg, "\n")] = 0;
     if (strlen(msg) > 0) {
         sendDirectMessage(currentUser, otherUser, msg);
@@ -416,13 +418,13 @@ void chatMenu(const char *loggedInUser) {
         printCenteredLine('=', 40);
         printCentered("MESSAGES & ALERTS");
         printCenteredLine('=', 40);
-        printf("                    1. Group Chat (Everyone)\n");
-        printf("                    2. Send a Message\n");
-        printf("                    3. My Conversations\n");
-        printf("                    4. Inbox (Received)\n");
-        printf("                    5. Sent Messages\n");
-        printf("                    6. View Alerts\n");
-        printf("                    7. Go Back\n");
+        printf("  1. Group Chat           - Chat with everyone live\n");
+        printf("  2. Send a Message       - DM a specific member\n");
+        printf("  3. My Conversations     - View chat history\n");
+        printf("  4. Inbox (Received)     - Messages sent to you\n");
+        printf("  5. Sent Messages        - Messages you sent\n");
+        printf("  6. View Alerts          - System notifications\n");
+        printf("  7. Go Back\n");
         printCenteredLine('=', 40);
         printf("                    Your choice: ");
         scanf("%d", &choice);

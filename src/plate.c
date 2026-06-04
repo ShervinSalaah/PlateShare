@@ -102,7 +102,8 @@ static int getValidQuantity(void) {
     char qtyStr[20];
     int qty;
     while (1) {
-        printf("  How many portions? ");
+        printf("  How many portions? (0 to cancel): ");
+
         fgets(qtyStr, sizeof(qtyStr), stdin);
         qtyStr[strcspn(qtyStr, "\n")] = 0;
         if (strlen(qtyStr) == 0) {
@@ -110,6 +111,8 @@ static int getValidQuantity(void) {
             continue;
         }
         if (sscanf(qtyStr, "%d", &qty) != 1 || qty <= 0) {
+                if (qty == 0) 
+                    return 0;
             printf("  Please enter a valid positive number.\n");
             continue;
         }
@@ -120,11 +123,13 @@ static int getValidQuantity(void) {
 /**
  * @brief Gets a valid expiry date (re-asks on invalid or past date)
  */
-static void getValidExpiryDate(char *expiryDate) {
+static int getValidExpiryDate(char *expiryDate) {
     while (1) {
-        printf("  Expiry date (YYYY-MM-DD): ");
+        printf("  Expiry date (YYYY-MM-DD) or '0' to cancel: ");
         fgets(expiryDate, 11, stdin);
         expiryDate[strcspn(expiryDate, "\n")] = 0;
+        if (strcmp(expiryDate, "0") == 0) 
+            return 0;
         if (strlen(expiryDate) == 0) {
             printf("  Date cannot be empty. Please enter a date.\n");
             continue;
@@ -139,6 +144,8 @@ static void getValidExpiryDate(char *expiryDate) {
         }
         break;
     }
+        return 1; 
+
 }
 
 /**
@@ -162,12 +169,16 @@ int addPlate(Plate *plates, int *count, const char *donor) {
     strcpy(p.donor, donor);
 
     printf("\n--- Share Your Food ---\n");
+    printf("  (Type '0' at any prompt to cancel)\n\n");
 
     /* Food name - required */
     while (1) {
         printf("  Name of the food (required): ");
         fgets(p.foodName, 40, stdin);
         p.foodName[strcspn(p.foodName, "\n")] = 0;
+        if (strcmp(p.foodName, "0") == 0) { 
+                    printf("  Cancelled.\n"); pauseScreen(""); return 0; 
+            }
         if (strlen(p.foodName) > 0) break;
         printf("  Food name cannot be empty. Please enter what you are sharing.\n");
     }
@@ -176,6 +187,9 @@ int addPlate(Plate *plates, int *count, const char *donor) {
     printf("  Description (press Enter to skip): ");
     fgets(p.description, 100, stdin);
     p.description[strcspn(p.description, "\n")] = 0;
+    if (strcmp(p.description, "0") == 0) { 
+            printf("  Cancelled.\n"); pauseScreen(""); return 0; 
+        }
     if (strlen(p.description) == 0) {
         strcpy(p.description, "(No description)");
     }
@@ -188,26 +202,41 @@ int addPlate(Plate *plates, int *count, const char *donor) {
 
     /* Pickup option - required */
     int pickupChoice;
-    while (1) {
-        printf("\n  How should people get this food?\n");
-        printf("    1. Self Pickup (they come to you)\n");
-        printf("    2. Open to Delivery (you can bring it)\n");
-        printf("  Your choice (1 or 2): ");
-        char choiceStr[10];
-        fgets(choiceStr, sizeof(choiceStr), stdin);
-        choiceStr[strcspn(choiceStr, "\n")] = 0;
-        if (strlen(choiceStr) == 0 || sscanf(choiceStr, "%d", &pickupChoice) != 1) {
-            printf("  Please enter 1 or 2.\n");
-            continue;
-        }
-        if (pickupChoice == 1) { strcpy(p.pickupOption, "Self Pickup"); break; }
-        if (pickupChoice == 2) { strcpy(p.pickupOption, "Open to Delivery"); break; }
-        printf("  Please enter 1 or 2.\n");
-    }
+printf("\n  How should people get this food?\n");
+printf("    1. Self Pickup (they come to you)\n");
+printf("    2. Open to Delivery (you can bring it to them)\n");
 
+while (1) {
+    printf("  Your choice (1 or 2, 0 to cancel): ");
+    char choiceStr[10];
+    fgets(choiceStr, sizeof(choiceStr), stdin);
+    choiceStr[strcspn(choiceStr, "\n")] = 0;
+    
+    if (strlen(choiceStr) == 0 || sscanf(choiceStr, "%d", &pickupChoice) != 1) {
+        printf("  Please enter 1 or 2.\n");
+        continue;
+    }
+    
+    if (strcmp(choiceStr, "0") == 0) { 
+        printf("  Cancelled.\n"); 
+        pauseScreen(""); 
+        return 0; 
+    }
+    
+    if (pickupChoice == 1) { 
+        strcpy(p.pickupOption, "Self Pickup"); 
+        break; 
+    }
+    if (pickupChoice == 2) { 
+        strcpy(p.pickupOption, "Open to Delivery"); 
+        break;
+    }
+    
+    printf("  Please enter 1 or 2.\n");
+}
     /* Address - required */
     while (1) {
-        printf("  Pickup address or delivery area: ");
+        printf("  Pickup address or preferred delivery area: ");
         fgets(p.address, MAX_ADDRESS, stdin);
         p.address[strcspn(p.address, "\n")] = 0;
         if (strlen(p.address) > 0) break;
@@ -361,14 +390,22 @@ int searchPlateByDonor(const Plate *plates, int count, const char *donor) {
 }
 
 void sortPlatesByExpiry(Plate *plates, int count) {
-    for (int i = 0; i < count - 1; i++)
-        for (int j = 0; j < count - i - 1; j++)
+    /* Remove past dates by shifting valid plates forward */
+    int validCount = 0;
+    for (int i = 0; i < count; i++) {
+        if (!isDateInPast(plates[i].expiryDate)) {
+            if (i != validCount) plates[validCount] = plates[i];
+            validCount++;
+        }
+    }
+    /* Sort remaining valid plates */
+    for (int i = 0; i < validCount - 1; i++)
+        for (int j = 0; j < validCount - i - 1; j++)
             if (strcmp(plates[j].expiryDate, plates[j + 1].expiryDate) > 0) {
                 Plate t = plates[j]; plates[j] = plates[j + 1]; plates[j + 1] = t;
             }
-    printf("  [Sorted: Expiring Soon First]\n");
+    printf("  [Sorted: Expiring Soon First | Past dates removed]\n");
 }
-
 void sortPlatesByDonor(Plate *plates, int count) {
     for (int i = 0; i < count - 1; i++)
         for (int j = 0; j < count - i - 1; j++)
@@ -417,14 +454,18 @@ void filterAndSortPlates(Plate *plates, int count) {
             case 2: sortPlatesByDonor(plates, count); displayAllPlates(plates, count); break;
             case 3: sortPlatesByPickup(plates, count); displayAllPlates(plates, count); break;
             case 4:
-                printf("  Search food name: ");
+                printf("  Search food name (0 to cancel): ");
                 fgets(input, sizeof(input), stdin); input[strcspn(input, "\n")] = 0;
-                searchPlateByName(plates, count, input);
+                if (strcmp(input, "0") != 0) {
+                    searchPlateByName(plates, count, input);
+                }
                 break;
             case 5:
-                printf("  Search donor name: ");
+                printf("  Search donor name (0 to cancel): ");
                 fgets(input, sizeof(input), stdin); input[strcspn(input, "\n")] = 0;
-                searchPlateByDonor(plates, count, input);
+                if (strcmp(input, "0") != 0) {
+                    searchPlateByDonor(plates, count, input);
+                }
                 break;
             case 6: return;
             default: printf("\n"); printCentered("Wrong choice!"); pauseScreen("");
@@ -444,12 +485,12 @@ void plateMenu(const char *loggedInUser) {
         printCenteredLine('=', 40);
         printCentered("SHARE FOOD");
         printCenteredLine('=', 40);
-        printf("                    1. Share New Food\n");
-        printf("                    2. See All Food\n");
-        printf("                    3. See My Food\n");
-        printf("                    4. Remove My Food\n");
-        printf("                    5. Find & Sort Food\n");
-        printf("                    6. Go Back\n");
+        printf("  1. Share New Food       - List your extra food\n");
+        printf("  2. See All Food         - Browse all available food\n");
+        printf("  3. See My Food          - View your own listings\n");
+        printf("  4. Remove My Food       - Delete your listing\n");
+        printf("  5. Find & Sort Food     - Search and organize\n");
+        printf("  6. Go Back\n");
         printCenteredLine('=', 40);
         printf("                    Your choice: ");
         scanf("%d", &choice); getchar();
