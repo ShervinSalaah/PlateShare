@@ -18,8 +18,8 @@
 #include "chat.h"
 
 /* ========== Global Session State ========== */
-char g_loggedInUser[30] = "";  /**< Username of currently logged-in user */
-int g_loggedIn = 0;              /**< 1 if someone is logged in, 0 if not */
+char g_loggedInUser[30] = "";  // Username of currently logged-in user 
+int g_loggedIn = 0;              // 1 if someone is logged in, 0 if not
 
 /* ========== Display Utilities ========== */
 
@@ -29,8 +29,8 @@ int g_loggedIn = 0;              /**< 1 if someone is logged in, 0 if not */
  * Calculates the left padding needed to center the text
  * and prints it followed by a newline character.
  */
-void printCentered(const char *str) {
-    int len = strlen(str);
+void printCentered(const char *str) { //const -> read-only string, *str -> pointer to the first character of the string
+    int len = strlen(str); // Get the length of the string
     int padding = (80 - len) / 2;
     if (padding < 0) padding = 0;
     for (int i = 0; i < padding; i++) printf(" ");
@@ -43,7 +43,7 @@ void printCentered(const char *str) {
  * Used for creating visual separators like ===== or ----- in menus.
  * Example: printCenteredLine('=', 36) produces a centered line of 36 equal signs.
  */
-void printCenteredLine(char ch, int width) {
+void printCenteredLine(char ch, int width) { 
     int padding = (80 - width) / 2;
     if (padding < 0) padding = 0;
     for (int i = 0; i < padding; i++) printf(" ");
@@ -60,7 +60,7 @@ void printCenteredLine(char ch, int width) {
 void pauseScreen(const char *message) {
     printf("\n  %s\n", message);
     printf("  Press Enter to continue...");
-    getchar();
+    getchar(); // Waits for the user to press Enter
 }
 
 /* ========== System Functions ========== */
@@ -72,8 +72,8 @@ void pauseScreen(const char *message) {
  * system time and formats it as "YYYY-MM-DD HH:MM:SS".
  */
 void getCurrentTimestamp(char *buffer, size_t size) {
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
+    time_t now = time(NULL); // Get the current time , time_t is a data type in C that represents time as the number of seconds since January 1, 1970 (the Unix epoch).
+    struct tm *t = localtime(&now); // Convert the time to local time representation, which breaks it down into year, month, day, hour, minute, and second.
     strftime(buffer, size, "%Y-%m-%d %H:%M:%S", t);
 }
 
@@ -96,10 +96,10 @@ void getCurrentDate(char *buffer) {
  * previously saved settings from config.ini.
  */
 void initSystem(Config *cfg) {
-    strcpy(cfg->dataFolder, ".\\data\\");
+    strcpy(cfg->dataFolder, ".\\data\\"); // Default data folder path and copy it to the config struct
     cfg->maxUsers = MAX_USERS;
     cfg->maxPlates = MAX_PLATES;
-    cfg->maxRequests = MAX_REQUESTS;
+    cfg->maxRequests = MAX_REQUESTS; // Set default limits for users, plates, and requests
     MKDIR(".\\data");
     loadConfig(cfg);
 }
@@ -113,11 +113,12 @@ void initSystem(Config *cfg) {
  */
 void loadConfig(Config *cfg) {
     char path[MAX_PATH];
-    snprintf(path, MAX_PATH, "%sconfig.ini", cfg->dataFolder);
-    FILE *fp = fopen(path, "r");
-    if (fp == NULL) { saveConfig(cfg); return; }
+    snprintf(path, MAX_PATH, "%sconfig.ini", cfg->dataFolder); //add file name config.ini at the end of the file path(cfg->dataFolder) and store it in the variable path
+                                                            // snprintf is a safer version of sprintf that prevents buffer overflows
+    FILE *fp = fopen(path, "r"); //open that file and  only in read only mode
+    if (fp == NULL) { saveConfig(cfg); return; } // If config file doesn't exist, create a file with default settings and return
     char line[MAX_LINE];
-    while (fgets(line, sizeof(line), fp)) {
+    while (fgets(line, sizeof(line), fp)) { //fgets read line by line from the file and store it in the variable line until it reaches the end of the file
         char key[50], value[MAX_PATH];
         if (sscanf(line, "%[^=]=%s", key, value) == 2) {
             if (strcmp(key, "dataFolder") == 0) strcpy(cfg->dataFolder, value);
