@@ -1,0 +1,4 @@
+[2026-06-04 12:30:00] salaah -> mayantha: Hi Mayantha! Saw you requested my biryani. I'll accept it soon!
+[2026-06-04 12:32:00] mayantha -> salaah: Thanks Salaah! I'm near Bandaranayake Mawatha. Can I pick up after class?
+[2026-06-04 12:35:00] salaah -> mayantha: Sure! My place is at 45 Bandaranayake Mawatha. Come by after 5pm.
+[2026-06-04 12:36:00] mayantha -> salaah: Perfect, see you then! I'll walk from the main gate.

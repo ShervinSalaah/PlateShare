@@ -1,0 +1,4 @@
+[2026-06-04 09:00:00] New food: Vegetable Biryani from salaah (5 portions, Self Pickup, 2026-12-31)
+[2026-06-04 10:00:00] New food: Rice and Curry from sahithiyan (8 portions, Self Pickup, 2026-07-20)
+[2026-06-04 14:00:00] New food: Fried Rice from salaah (4 portions, Open to Delivery, 2026-09-01)
+[2026-06-04 16:00:00] New food: Hopper Meal from mayantha (10 portions, Open to Delivery, 2026-06-20)

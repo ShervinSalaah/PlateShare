@@ -1,0 +1,3 @@
+[2026-06-04 16:30:00] shaliya -> sahithiyan: Sahithiyan! Your rice and curry sounds delicious. I'm at Molpe Road too!
+[2026-06-04 16:35:00] sahithiyan -> shaliya: Nice! I'm at 12 Molpe Road. You can pick it up anytime today.
+[2026-06-04 16:40:00] shaliya -> sahithiyan: Great, I'll come by after my lecture. Thanks!

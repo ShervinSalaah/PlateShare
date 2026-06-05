@@ -1,1 +1,8 @@
 [2026-06-02 00:23:29] fathima added a new plate: Buriyani (Qty: 50)
+[2026-06-04 09:00:00] salaah shared new food: Vegetable Biryani (5 portions, Self Pickup, Expires: 2026-12-31)
+[2026-06-04 09:15:00] salaah shared new food: Chicken Pasta (3 portions, Open to Delivery, Expires: 2026-08-15)
+[2026-06-04 10:00:00] sahithiyan shared new food: Rice and Curry (8 portions, Self Pickup, Expires: 2026-07-20)
+[2026-06-04 11:30:00] senuri shared new food: Chocolate Cake (2 portions, Self Pickup, Expires: 2026-06-10)
+[2026-06-04 14:00:00] salaah shared new food: Fried Rice (4 portions, Open to Delivery, Expires: 2026-09-01)
+[2026-06-04 15:30:00] shaliya shared new food: Kottu Roti (6 portions, Self Pickup, Expires: 2026-07-15)
+[2026-06-04 16:00:00] mayantha shared new food: Hopper Meal (10 portions, Open to Delivery, Expires: 2026-06-20)

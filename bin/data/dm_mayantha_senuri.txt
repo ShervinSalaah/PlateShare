@@ -1,0 +1,4 @@
+[2026-06-04 14:00:00] mayantha -> senuri: Senuri! Your chocolate cake looks amazing. I'm near Piliyandala Road.
+[2026-06-04 14:10:00] senuri -> mayantha: Thanks! Want to trade? Your hoppers for a slice of cake?
+[2026-06-04 14:15:00] mayantha -> senuri: Haha deal! I'll save some hoppers for you.
+[2026-06-04 14:20:00] senuri -> mayantha: Perfect! Come by 78 Saldadin Mawatha near the university lake.

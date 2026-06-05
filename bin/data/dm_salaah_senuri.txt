@@ -1,0 +1,3 @@
+[2026-06-04 11:00:00] senuri -> salaah: Hey Salaah! Is your chicken pasta still available? I'm on Galle Road.
+[2026-06-04 11:15:00] salaah -> senuri: Hi Senuri! Yes it is. I can deliver along Galle Road if that's convenient.
+[2026-06-04 11:20:00] senuri -> salaah: That would be great! I'll be near Katubedda Junction around 3pm.

@@ -2,5 +2,4 @@
 [2026-06-04 09:15:00] New food: Chicken Pasta from salaah (3 portions, Open to Delivery, 2026-08-15)
 [2026-06-04 10:00:00] New food: Rice and Curry from sahithiyan (8 portions, Self Pickup, 2026-07-20)
 [2026-06-04 11:30:00] New food: Chocolate Cake from senuri (2 portions, Self Pickup, 2026-06-10)
-[2026-06-04 14:00:00] New food: Fried Rice from salaah (4 portions, Open to Delivery, 2026-09-01)
-[2026-06-04 16:00:00] New food: Hopper Meal from mayantha (10 portions, Open to Delivery, 2026-06-20)
+[2026-06-04 15:30:00] New food: Kottu Roti from shaliya (6 portions, Self Pickup, 2026-07-15)
